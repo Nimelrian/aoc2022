@@ -1,44 +1,103 @@
 package de.nimelrian.aoc2022
 
+import de.nimelrian.aoc2022.RoundResult.*
+import de.nimelrian.aoc2022.Shape.*
 import java.lang.IllegalArgumentException
 
 fun main() = aoc {
     part("/input") { lines ->
-        lines.map { StrategyRound.from(it) }
+        lines.map { parseRoundForPart1(it) }
+            .map { getPointsForRound(it) }
+            .sum()
+    }
+
+    part("/input") { lines ->
+        lines.map { parseRoundForPart2(it) }
             .map { getPointsForRound(it) }
             .sum()
     }
 }
 
-data class StrategyRound(val opponentShape: Shape, val playerShape: Shape) {
-    companion object : From<String, StrategyRound> {
-        override fun from(source: String): StrategyRound {
-            val (opponent, player) = source.split(" ")
+fun parseRoundForPart1(strategy: String): Round {
+    val (opponent, player) = strategy.split(" ")
 
-            return StrategyRound(
-                Shape.from(opponent),
-                Shape.from(player),
-            )
-        }
+    return Round(
+        parseShapeForPart1(opponent),
+        parseShapeForPart1(player),
+    )
+}
+
+fun parseShapeForPart1(shapeCharacter: String): Shape {
+    return when (shapeCharacter) {
+        "A", "X" -> Rock
+        "B", "Y" -> Paper
+        "C", "Z" -> Scissors
+        else -> throw IllegalArgumentException("Unknown input $shapeCharacter")
     }
 }
 
-fun getPointsForRound(round: StrategyRound): Int {
+fun parseRoundForPart2(strategy: String): Round {
+    val (opponent, expected) = strategy.split(" ")
+
+    val opponentShape = parseShapeForPart2(opponent)
+    val expectedResult = getExpectedResultForRound(expected)
+    val requiredShape = getRequiredShapeForResult(opponentShape, expectedResult)
+    return Round(
+        opponentShape,
+        requiredShape,
+    )
+}
+
+fun parseShapeForPart2(shapeCharacter: String): Shape {
+    return when (shapeCharacter) {
+        "A" -> Rock
+        "B" -> Paper
+        "C" -> Scissors
+        else -> throw IllegalArgumentException("Unknown input $shapeCharacter")
+    }
+}
+
+fun getExpectedResultForRound(resultCharacter: String): RoundResult {
+    return when (resultCharacter) {
+        "X" -> Loss
+        "Y" -> Draw
+        "Z" -> Win
+        else -> throw IllegalArgumentException("Unknown input $resultCharacter")
+    }
+}
+
+fun getRequiredShapeForResult(opponentShape: Shape, roundResult: RoundResult): Shape {
+    if (roundResult == Draw) {
+        return opponentShape
+    }
+
+    return when (Pair(opponentShape, roundResult)) {
+        Scissors to Win,
+        Paper to Loss -> Rock
+        Rock to Win,
+        Scissors to Loss -> Paper
+        else -> Scissors
+    }
+}
+
+data class Round(val opponentShape: Shape, val playerShape: Shape)
+
+fun getPointsForRound(round: Round): Int {
     val resultPoints = getResultForRound(round).points
     return resultPoints + round.playerShape.points
 }
 
-fun getResultForRound(round: StrategyRound): RoundResult {
+fun getResultForRound(round: Round): RoundResult {
     val (opponent, player) = round
     if (opponent == player) {
-        return RoundResult.Draw
+        return Draw
     }
 
     return when (Pair(player, opponent)) {
-        Shape.Paper to Shape.Rock,
-        Shape.Rock to Shape.Scissors,
-        Shape.Scissors to Shape.Paper -> RoundResult.Win
-        else -> RoundResult.Loss
+        Paper to Rock,
+        Rock to Scissors,
+        Scissors to Paper -> Win
+        else -> Loss
     }
 }
 
@@ -57,17 +116,6 @@ sealed interface RoundResult{
 }
 
 sealed interface Shape {
-    companion object : From<String, Shape> {
-        override fun from(source: String): Shape {
-            return when (source) {
-                "A", "X" -> Rock
-                "B", "Y" -> Paper
-                "C", "Z" -> Scissors
-                else -> throw IllegalArgumentException("Unknown input $source")
-            }
-        }
-    }
-
     val points: Int
 
     object Rock: Shape {
