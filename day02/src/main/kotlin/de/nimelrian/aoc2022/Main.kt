@@ -72,10 +72,10 @@ fun getRequiredShapeForResult(opponentShape: Shape, roundResult: RoundResult): S
     }
 
     return when (Pair(opponentShape, roundResult)) {
-        Scissors to Win,
-        Paper to Loss -> Rock
-        Rock to Win,
-        Scissors to Loss -> Paper
+        Win against Scissors,
+        Loss against Paper -> Rock
+        Win against Rock,
+        Loss against Scissors -> Paper
         else -> Scissors
     }
 }
@@ -128,3 +128,5 @@ sealed interface Shape {
         override val points: Int = 3
     }
 }
+
+infix fun RoundResult.against(shape: Shape) = Pair(shape, this)
