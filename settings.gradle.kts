@@ -4,4 +4,5 @@ include(
     "common",
     "day01",
     "day02",
+    "day03",
 )
