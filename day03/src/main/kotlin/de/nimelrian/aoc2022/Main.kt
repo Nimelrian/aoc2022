@@ -11,13 +11,7 @@ fun main() = aoc {
             val itemsInBoth = itemsInFirst.intersect(itemsInSecond)
             itemsInBoth.single()
         }
-            .map { item ->
-                if (item.isUpperCase()) {
-                    item - 'A' + 1 + 26
-                } else {
-                    item - 'a' + 1
-                }
-            }
+            .map { item -> calculatePriority(item) }
             .sum()
     }
 
@@ -30,13 +24,13 @@ fun main() = aoc {
                 val badge = third.toSet().intersect(itemsInFirst).intersect(itemsInSecond)
                 badge.single()
             }
-            .map { item ->
-                if (item.isUpperCase()) {
-                    item - 'A' + 1 + 26
-                } else {
-                    item - 'a' + 1
-                }
-            }
+            .map { item -> calculatePriority(item) }
             .sum()
     }
+}
+
+private fun calculatePriority(item: Char) = if (item.isUpperCase()) {
+    item - 'A' + 1 + 26
+} else {
+    item - 'a' + 1
 }
