@@ -23,10 +23,10 @@ fun String.toIntRange(): IntRange {
     return IntRange(start.toInt(), end.toInt())
 }
 
-fun doRangesOverlapCompletely(first: IntRange, second: IntRange) = first.contains(second) || second.contains(first)
+fun doRangesOverlapCompletely(first: IntRange, second: IntRange) = first.isSubrangeOf(second) || second.isSubrangeOf(first)
 fun doRangesOverlap(first: IntRange, second: IntRange) = first.overlaps(second)
 
-fun IntRange.contains(other: IntRange): Boolean {
+fun IntRange.isSubrangeOf(other: IntRange): Boolean {
     return other.contains(this.first) && other.contains(this.last)
 }
 
