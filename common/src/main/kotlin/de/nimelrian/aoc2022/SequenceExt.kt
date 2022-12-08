@@ -28,3 +28,10 @@ fun <T> Sequence<T>.chunkByPredicate(predicate: (T) -> Boolean): Sequence<List<T
         yield(currentChunk)
     }
 }
+
+inline fun <T> Sequence<T>.takeWhileInclusive(crossinline predicate: (T) -> Boolean) = sequence {
+    for (item in this@takeWhileInclusive) {
+        yield(item)
+        if (!predicate(item)) break
+    }
+}
